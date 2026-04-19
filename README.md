@@ -1,12 +1,12 @@
 # This project is a simple boids simulator.
 
-Boids is an artifical lfie program developed by Craig Reynolds in 1986.
+Boids is an artificial life program developed by Craig Reynolds in 1986.
 It is a wonderful example of how simple rules can give rise to complex behavior.
 
 I am not yet very skilled in python. All of my classwork has been in C++
 In fact, this is the first python project I've created.
 
 # Possible Improvements
- - O(N^2) efficency in some functions hehe. Efficency could be better.
+ - O(N^2) efficency in some functions hehe.
  - Style and organization could use some work.
- - This game only runs on a single thread of my CPU. I want to be able to render all the boids.
+ - This game only runs on a single thread of my CPU. Multithread support for larger flocks?

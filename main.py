@@ -54,10 +54,8 @@ class Boid:
 
     def separation(self, flock):
         # each boid steers away from its neighbors that are too close. "Don't crash into anyone."
-        count = 0
         sx, sy = 0, 0
         for neighbor in self.nearby(flock):
-            count += 1
             distance = (neighbor.x - self.x)**2 + (neighbor.y - self.y)**2
             weight = 1
             if distance != 0:
