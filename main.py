@@ -2,12 +2,15 @@ import pygame
 import random
 
 WIDTH, HEIGHT = 800, 600
-NUM_BOIDS = 200
-BACKGROUND_COLOR = "purple"
-BOID_COLOR = (255, 255, 255)
+NUM_BOIDS = 77
+BACKGROUND_COLOR = (255, 0, 255)
+BOID_COLOR = (25, 225, 225)
 BOID_SIZE = 5
-NEARBY_RADIUS = 200
+NEARBY_RADIUS = 50
 COHESION_WEIGHT = 0.01
+SEPARATION_WEIGHT = 1
+ALIGNMENT_WEIGHT = 0.01
+MAX_VELOCITY = 2
 
 class Boid:
     def __init__(self):
@@ -18,9 +21,25 @@ class Boid:
 
     def update(self, flock):
         # TODO: separation, alignment, cohesion
+        sx, sy = self.separation(flock)
+        self.vx += (sx * SEPARATION_WEIGHT)
+        self.vy += (sy * SEPARATION_WEIGHT)
+
+        ax, ay = self.alignment(flock)
+        self.vx += (ax * ALIGNMENT_WEIGHT)
+        self.vy += (ay * ALIGNMENT_WEIGHT)
+
         cx, cy = self.cohesion(flock)
         self.vx += (cx * COHESION_WEIGHT)
         self.vy += (cy * COHESION_WEIGHT)
+
+        # cap velocity to max
+        velocitysq = self.vx**2 + self.vy**2
+        maxvelsq = MAX_VELOCITY**2
+        if velocitysq > maxvelsq and velocitysq > 0:
+            scale = maxvelsq / velocitysq
+            self.vx *= scale
+            self.vy *= scale
 
         self.x += self.vx
         self.y += self.vy
@@ -30,6 +49,24 @@ class Boid:
 
     def draw(self, screen):
         pygame.draw.circle(screen, BOID_COLOR, (int(self.x), int(self.y)), BOID_SIZE)
+
+    def separation(self, flock):
+        # each boid steers away from its neighbors that are too close. "Don't crash into anyone."
+        count = 0
+        sx, sy = 0, 0
+        for neighbor in self.nearby(flock):
+            count += 1
+            distance = (neighbor.x - self.x)**2 + (neighbor.y - self.y)**2
+            weight = 1
+            if distance != 0:
+                weight = 1 / distance
+            sx -= weight * (neighbor.x - self.x)
+            sy -= weight * (neighbor.y - self.y)
+
+        if count == 0:
+            return 0, 0
+
+        return sx, sy
 
     def cohesion(self, flock):
         # each boid steers toward the average position of its neighbors. "Move toward the crowd." 
@@ -75,14 +112,9 @@ class Boid:
         ay -= self.vy
         return ax, ay
 
-    def separation(self, flock):
-        # each boid steers away from its neighbors that are too close. "Don't crash into anyone."
-        # compute and return (cx, cy) representing separation nudge
-        # return (0, 0) if no neighbors
-        pass
-
     def nearby(self, flock):
         return [b for b in flock if b is not self and ((self.x - b.x)**2 + (self.y - b.y)**2 < NEARBY_RADIUS**2)]
+
 
 
 def main():
