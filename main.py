@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 WIDTH, HEIGHT = 800, 600
 NUM_BOIDS = 77
@@ -10,7 +11,7 @@ NEARBY_RADIUS = 50
 COHESION_WEIGHT = 0.01
 SEPARATION_WEIGHT = 1
 ALIGNMENT_WEIGHT = 0.01
-MAX_VELOCITY = 2
+MAX_SPEED = 2
 
 class Boid:
     def __init__(self):
@@ -20,24 +21,25 @@ class Boid:
         self.vy = random.uniform(-2, 2)
 
     def update(self, flock):
-        # TODO: separation, alignment, cohesion
+        # separation, "Don't crash into anyone"
         sx, sy = self.separation(flock)
         self.vx += (sx * SEPARATION_WEIGHT)
         self.vy += (sy * SEPARATION_WEIGHT)
 
+        # alignment, "Go where everyone else is going"
         ax, ay = self.alignment(flock)
         self.vx += (ax * ALIGNMENT_WEIGHT)
         self.vy += (ay * ALIGNMENT_WEIGHT)
 
+        # cohesion, "Stick to the group"
         cx, cy = self.cohesion(flock)
         self.vx += (cx * COHESION_WEIGHT)
         self.vy += (cy * COHESION_WEIGHT)
 
-        # cap velocity to max
-        velocitysq = self.vx**2 + self.vy**2
-        maxvelsq = MAX_VELOCITY**2
-        if velocitysq > maxvelsq and velocitysq > 0:
-            scale = maxvelsq / velocitysq
+        # Boids can only go so fast
+        speed = math.sqrt(self.vx**2 + self.vy**2)
+        if speed > MAX_SPEED and speed > 0:
+            scale = MAX_SPEED / speed
             self.vx *= scale
             self.vy *= scale
 
@@ -62,9 +64,6 @@ class Boid:
                 weight = 1 / distance
             sx -= weight * (neighbor.x - self.x)
             sy -= weight * (neighbor.y - self.y)
-
-        if count == 0:
-            return 0, 0
 
         return sx, sy
 
