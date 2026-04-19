@@ -10,3 +10,4 @@ In fact, this is the first python project I've created.
  - O(N^2) efficency in some functions hehe.
  - Style and organization could use some work.
  - This game only runs on a single thread of my CPU. Multithread support for larger flocks?
+ - While boids wraparound the screen, their functions determining locality do not account for this.
